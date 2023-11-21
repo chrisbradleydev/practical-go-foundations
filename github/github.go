@@ -52,6 +52,8 @@ func githubInfo(username string) (string, int, error) {
 		return "", 0, fmt.Errorf("%#v - %s", url, res.Status)
 	}
 
+	defer res.Body.Close()
+
 	var r struct { // anonymous struct
 		Name        string `json:"name"`
 		PublicRepos int    `json:"public_repos"`

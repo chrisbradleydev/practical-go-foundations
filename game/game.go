@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 )
 
 type Item struct {
@@ -14,6 +15,7 @@ type Player struct {
 	// X int
 	Item // embed item
 	// T
+	Keys []Key
 }
 
 // type T struct {
@@ -25,10 +27,42 @@ type mover interface {
 	// Move(int, int)
 }
 
+func (p *Player) FoundKey(k Key) error {
+	if k < Jade || k >= invalidKey {
+		return fmt.Errorf("invalid key: %#v", k)
+	}
+	// if !containsKey(p.Keys, k) {
+	// 	p.Keys = append(p.Keys, k)
+	// }
+	if !slices.Contains(p.Keys, k) {
+		p.Keys = append(p.Keys, k)
+	}
+	return nil
+}
+
+// func containsKey(keys []Key, k Key) bool {
+// 	for _, key := range keys {
+// 		if key == k {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
+
 const (
 	maxX = 1000
 	maxY = 600
 )
+
+// go's version of "enum"
+const (
+	Jade Key = iota + 1
+	Copper
+	Crystal
+	invalidKey // internal (not exported)
+)
+
+type Key byte
 
 func main() {
 	var i1 Item
@@ -68,6 +102,31 @@ func main() {
 	for _, m := range ms {
 		fmt.Println(m)
 	}
+
+	k := Jade
+	fmt.Println("k:", k)
+	fmt.Println("key:", Key(17))
+
+	// time.Time implement json.Marshaler interface
+	// json.NewEncoder(os.Stdout).Encode(time.Now())
+
+	p1.FoundKey(Jade)
+	fmt.Println(p1.Keys)
+	p1.FoundKey(Jade)
+	fmt.Println(p1.Keys)
+}
+
+// implement fmt.Stringer interface
+func (k Key) String() string {
+	switch k {
+	case Jade:
+		return "jade"
+	case Copper:
+		return "copper"
+	case Crystal:
+		return "crystal"
+	}
+	return fmt.Sprintf("<Key %d>", k)
 }
 
 /* go >= 1.18

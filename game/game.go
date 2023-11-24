@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"slices"
+	"sort"
 )
 
 type Item struct {
@@ -21,6 +22,18 @@ type Player struct {
 // type T struct {
 // 	X int
 // }
+
+type ByDistance []Player
+
+func (a ByDistance) Len() int {
+	return len(a)
+}
+func (a ByDistance) Swap(i, j int) {
+	 a[i], a[j] = a[j], a[i]
+}
+func (a ByDistance) Less(i, j int) bool {
+	return a[i].X < a[j].X
+}
 
 type mover interface {
 	Move(x, y int)
@@ -114,6 +127,22 @@ func main() {
 	fmt.Println(p1.Keys)
 	p1.FoundKey(Jade)
 	fmt.Println(p1.Keys)
+
+	players := []Player{
+		{Name: "Alan", Item: Item{40, 0}},
+		{Name: "Bobby", Item: Item{30, 0}},
+		{Name: "Charles", Item: Item{100, 0}},
+		{Name: "Dylan", Item: Item{0, 0}},
+	}
+
+	fmt.Println("before sort:", players)
+	sort.Sort(ByDistance(players))
+	fmt.Println("after sort:", players)
+
+	sort.Slice(players, func(i, j int) bool {
+		return players[i].Item.X > players[j].Item.X
+	})
+	fmt.Println("using slice:", players)
 }
 
 // implement fmt.Stringer interface

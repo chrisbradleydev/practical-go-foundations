@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"sort"
 	"strings"
 )
 
@@ -19,19 +20,30 @@ func main() {
 
 	mapDemo()
 
-	w, err := mostCommon(file)
+	// w, err := mostCommon(file)
+	w, err := getFreqs(file)
 	if err != nil {
 		log.Fatalf("error: %s", err)
 	}
-	fmt.Println(w)
+	pl := rankByWordCount(w, 5)
+	for _, p := range pl {
+		fmt.Printf("%s: %d\n", p.Key, p.Value)
+	}
 }
 
-func mostCommon(r io.Reader) (string, error) {
+// func mostCommon(r io.Reader) (string, error) {
+// 	freqs, err := wordFrequency(r)
+// 	if err != nil {
+// 		return "", nil
+// 	}
+// 	return maxWord(freqs)
+// }
+func getFreqs(r io.Reader) (map[string]int, error) {
 	freqs, err := wordFrequency(r)
 	if err != nil {
-		return "", nil
+		return make(map[string]int), err
 	}
-	return maxWord(freqs)
+	return freqs, nil
 }
 
 // "Who's on first?" -> [Who s on first]
@@ -78,18 +90,46 @@ func mapDemo() {
 	delete(stocks, "AAPL") // no panic
 }
 
-func maxWord(freqs map[string]int) (string, error) {
-	if len(freqs) == 0 {
-		return "", fmt.Errorf("empty map")
-	}
+// func maxWord(freqs map[string]int) (string, error) {
+// 	if len(freqs) == 0 {
+// 		return "", fmt.Errorf("empty map")
+// 	}
 
-	maxN, maxW := 0, ""
-	for word, count := range freqs {
-		if count > maxN {
-			maxN, maxW = count, word
-		}
+// 	maxN, maxW := 0, ""
+// 	for word, count := range freqs {
+// 		if count > maxN {
+// 			maxN, maxW = count, word
+// 		}
+// 	}
+// 	return maxW, nil
+// }
+
+func rankByWordCount(wordFrequencies map[string]int, total int) PairList {
+	pl := make(PairList, len(wordFrequencies))
+	i := 0
+	for k, v := range wordFrequencies {
+		pl[i] = Pair{k, v}
+		i++
 	}
-	return maxW, nil
+	sort.Sort(sort.Reverse(pl))
+	return pl[:total]
+}
+
+type Pair struct {
+	Key string
+	Value int
+}
+
+type PairList []Pair
+
+func (p PairList) Len() int {
+	return len(p)
+}
+func (p PairList) Less(i, j int) bool {
+	return p[i].Value < p[j].Value
+}
+func (p PairList) Swap(i, j int){
+	p[i], p[j] = p[j], p[i]
 }
 
 func wordFrequency(r io.Reader) (map[string]int, error) {

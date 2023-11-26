@@ -1,6 +1,7 @@
 package nlp
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/BurntSushi/toml"
@@ -21,7 +22,7 @@ type tokenizeCase struct {
 }
 
 func loadTokenizeCases(t *testing.T) []tokenizeCase {
-	// data, err := os.ReadFile("tokenize_cases.toml")
+	// data, err := os.ReadFile("testdata/tokenize_cases.toml")
 	// require.NoError(t, err)
 
 	var testCases struct {
@@ -29,7 +30,7 @@ func loadTokenizeCases(t *testing.T) []tokenizeCase {
 	}
 
 	// err = toml.Unmarshal(data, &testCases)
-	_, err := toml.DecodeFile("tokenize_cases.toml", &testCases)
+	_, err := toml.DecodeFile("testdata/tokenize_cases.toml", &testCases)
 	require.NoError(t, err, "Unmarshal TOML")
 	return testCases.Cases
 }
@@ -54,4 +55,16 @@ func TestTokenize(t *testing.T) {
 		t.Fatalf("expected %#v, got %#v", expected, tokens)
 	}
 	*/
+}
+
+func FuzzTokenize(f *testing.F) {
+	f.Fuzz(func (t *testing.T, text string) {
+		tokens := Tokenize(text)
+		lText := strings.ToLower(text)
+		for _, tok := range tokens {
+			if !strings.Contains(lText, tok) {
+				t.Fatal(tok)
+			}
+		}
+	})
 }

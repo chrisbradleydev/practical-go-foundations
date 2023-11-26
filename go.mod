@@ -3,8 +3,8 @@ module github.com/chrisbradleydev/practical-go-foundations
 go 1.21.4
 
 require (
-	// Dev requirements
 	github.com/BurntSushi/toml v1.3.2
+	github.com/gorilla/mux v1.8.1
 	github.com/stretchr/testify v1.8.4
 )
 

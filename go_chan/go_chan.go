@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 var wg sync.WaitGroup
@@ -59,6 +60,28 @@ func main() {
 	fmt.Printf("closed: %#v (ok=%v)\n", msg, ok)
 
 	// ch <- "hi" // channel is closed -> panic
+	values := []int{15, 8, 42, 16, 4, 23}
+	fmt.Println(sleepSort(values))
+}
+
+// the worst sort algorithm possible
+func sleepSort(values []int) []int {
+	ch := make(chan int)
+	for _, n := range values {
+		n := n
+		go func() {
+			time.Sleep(time.Duration(n) * time.Millisecond)
+			ch <- n
+		}()
+	}
+
+	var out []int
+	// for i = 0; i < len(values); i++ {}
+	for range values {
+		n := <- ch
+		out = append(out, n)
+	}
+	return out
 }
 
 /*

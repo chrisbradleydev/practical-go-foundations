@@ -1,15 +1,19 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 func main() {
-	fmt.Println(githubInfo("chrisbradleydev"))
+	ctx, cancel := context.WithTimeout(context.Background(), 3 * time.Second)
+	defer cancel()
+	fmt.Println(githubInfo(ctx, "chrisbradleydev"))
 }
 
 func Demo() {
@@ -41,9 +45,14 @@ func Demo() {
 	// fmt.Printf("%#v\n", r)
 }
 
-func githubInfo(username string) (string, int, error) {
+func githubInfo(ctx context.Context, username string) (string, int, error) {
 	url := "https://api.github.com/users/" + url.PathEscape(username)
-	res, err := http.Get(url)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	// res, err := http.Get(url)
+	if err != nil {
+		return "", 0, err
+	}
+	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return "", 0, err
 	}
